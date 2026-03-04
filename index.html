@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Simulador de Investigação Criminal - Treinamento em detecção de vieses cognitivos e prevenção de erro judicial">
+    <meta name="author" content="Erigutemberg Meneses">
+    <title>Você é o Delegado - Simulador de Investigação Criminal</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <h1>🔍 Você é o Delegado</h1>
+                <p class="subtitle">Simulador de Investigação Criminal</p>
+            </div>
+            <nav class="nav">
+                <button class="nav-btn active" data-section="intro">Início</button>
+                <button class="nav-btn" data-section="simulator">Simulador</button>
+                <button class="nav-btn" data-section="results">Resultados</button>
+                <button class="nav-btn" data-section="about">Sobre</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main">
+        <!-- Seção Introdutória -->
+        <section id="intro" class="section active">
+            <div class="container">
+                <div class="intro-card">
+                    <h2>Bem-vindo ao Simulador</h2>
+                    <p class="intro-text">
+                        Este simulador foi desenvolvido com base na obra 
+                        <strong>"Arquiteturas da Dúvida: Como Redesenhar o Sistema Penal Contra os Vieses da Mente Humana"</strong> 
+                        de Erigutemberg Meneses.
+                    </p>
+                    
+                    <div class="objectives">
+                        <h3>Objetivos de Aprendizado</h3>
+                        <ul>
+                            <li>✓ Identificar <strong>red flags</strong> de tunnel vision em investigações criminais</li>
+                            <li>✓ Reconhecer vieses cognitivos como confirmation bias e hindsight bias</li>
+                            <li>✓ Aplicar protocolos de blinding e CEAP 2.0</li>
+                            <li>✓ Desenvolver ceticismo saudável em relação a evidências frágeis</li>
+                        </ul>
+                    </div>
+
+                    <div class="how-it-works">
+                        <h3>Como Funciona</h3>
+                        <div class="steps">
+                            <div class="step">
+                                <span class="step-number">1</span>
+                                <p>Você receberá um caso criminal com relatório policial detalhado</p>
+                            </div>
+                            <div class="step">
+                                <span class="step-number">2</span>
+                                <p>Analise as evidências e identifique possíveis vieses cognitivos</p>
+                            </div>
+                            <div class="step">
+                                <span class="step-number">3</span>
+                                <p>Tome uma decisão: indiciar, requisitar diligências ou arquivar</p>
+                            </div>
+                            <div class="step">
+                                <span class="step-number">4</span>
+                                <p>Receba feedback imediato sobre sua performance e aprenda com os erros</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn-primary btn-large" onclick="startSimulation()">
+                        Iniciar Simulação →
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção do Simulador -->
+        <section id="simulator" class="section">
+            <div class="container">
+                <div class="simulator-header">
+                    <div class="case-info">
+                        <span class="case-number">Caso <span id="currentCase">1</span> de <span id="totalCases">10</span></span>
+                        <h2 id="caseTitle">Carregando caso...</h2>
+                    </div>
+                    <div class="timer">
+                        <span class="timer-label">Tempo restante:</span>
+                        <span class="timer-value" id="timer">15:00</span>
+                    </div>
+                </div>
+
+                <div class="case-content">
+                    <div class="case-report">
+                        <h3>Relatório Policial</h3>
+                        <div id="caseText" class="report-text">
+                            <!-- Conteúdo do caso será inserido via JavaScript -->
+                        </div>
+                        
+                        <div class="evidence-list" id="evidenceList">
+                            <!-- Lista de evidências será inserida via JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="decision-panel">
+                        <h3>Sua Decisão</h3>
+                        <p class="decision-instruction">
+                            Com base nas informações disponíveis, qual ação você tomaria?
+                        </p>
+                        
+                        <div class="decision-options">
+                            <button class="decision-btn" data-decision="indict" onclick="makeDecision('indict')">
+                                <span class="btn-icon">📋</span>
+                                <span class="btn-text">
+                                    <strong>Indiciar o Suspeito</strong>
+                                    <small>Oferecer denúncia com base nas evidências atuais</small>
+                                </span>
+                            </button>
+                            
+                            <button class="decision-btn" data-decision="investigate" onclick="makeDecision('investigate')">
+                                <span class="btn-icon">🔍</span>
+                                <span class="btn-text">
+                                    <strong>Requisitar Diligências</strong>
+                                    <small>Solicitar investigações complementares antes de decidir</small>
+                                </span>
+                            </button>
+                            
+                            <button class="decision-btn" data-decision="archive" onclick="makeDecision('archive')">
+                                <span class="btn-icon">📁</span>
+                                <span class="btn-text">
+                                    <strong>Arquivar o Caso</strong>
+                                    <small>Encerrar investigação por insuficiência de provas</small>
+                                </span>
+                            </button>
+                        </div>
+
+                        <div class="red-flags-check">
+                            <h4>Red Flags Identificados (opcional)</h4>
+                            <div class="checkbox-group" id="redFlagsChecklist">
+                                <label class="checkbox-item">
+                                    <input type="checkbox" value="fixacao_24h">
+                                    <span>Fixação em suspeito em &lt;24h sem descarte de alternativas</span>
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" value="reconhecimento_sem_blinding">
+                                    <span>Reconhecimento visual sem blinding duplo-cego</span>
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" value="confissao_sem_gravacao">
+                                    <span>Confissão sem gravação integral</span>
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" value="alibi_ignorado">
+                                    <span>Álibi documentado reinterpretado como "fraude"</span>
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" value="dna_reinterpretado">
+                                    <span>DNA excludente reinterpretado como "contaminação"</span>
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" value="comportamento_suspeito">
+                                    <span>"Comportamento suspeito" sem correlação objetiva</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção de Feedback -->
+        <section id="feedback" class="section">
+            <div class="container">
+                <div class="feedback-card">
+                    <div class="feedback-header" id="feedbackHeader">
+                        <h2 id="feedbackTitle">Análise da Sua Decisão</h2>
+                    </div>
+                    
+                    <div class="feedback-content">
+                        <div class="decision-result" id="decisionResult">
+                            <!-- Resultado será inserido via JavaScript -->
+                        </div>
+
+                        <div class="cognitive-analysis">
+                            <h3>Análise dos Vieses Cognitivos</h3>
+                            <div id="biasAnalysis">
+                                <!-- Análise de vieses será inserida via JavaScript -->
+                            </div>
+                        </div>
+
+                        <div class="lessons-learned">
+                            <h3>Lições Aprendidas</h3>
+                            <ul id="lessonsList">
+                                <!-- Lições serão inseridas via JavaScript -->
+                            </ul>
+                        </div>
+
+                        <div class="tools-recommended">
+                            <h3>Ferramentas que Teriam Evitado o Erro</h3>
+                            <ul id="toolsList">
+                                <!-- Ferramentas serão inseridas via JavaScript -->
+                            </ul>
+                        </div>
+
+                        <div class="next-actions">
+                            <button class="btn-primary" onclick="nextCase()">
+                                Próximo Caso →
+                            </button>
+                            <button class="btn-secondary" onclick="showResults()">
+                                Ver Resultados Gerais
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção de Resultados -->
+        <section id="results" class="section">
+            <div class="container">
+                <div class="results-card">
+                    <h2>Seu Desempenho</h2>
+                    
+                    <div class="score-overview">
+                        <div class="score-circle">
+                            <span class="score-value" id="totalScore">0</span>
+                            <span class="score-label">Pontuação Total</span>
+                        </div>
+                        
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <span class="stat-value" id="correctDecisions">0</span>
+                                <span class="stat-label">Decisões Corretas</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-value" id="redFlagsIdentified">0</span>
+                                <span class="stat-label">Red Flags Identificados</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-value" id="averageTime">0</span>
+                                <span class="stat-label">Tempo Médio (min)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cognitive-profile">
+                        <h3>Seu Perfil Cognitivo</h3>
+                        <div id="cognitiveProfile">
+                            <!-- Perfil será inserido via JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="recommendations">
+                        <h3>Recomendações de Treinamento</h3>
+                        <ul id="recommendationsList">
+                            <!-- Recomendações serão inseridas via JavaScript -->
+                        </ul>
+                    </div>
+
+                    <div class="certificate-section">
+                        <button class="btn-primary" onclick="generateCertificate()">
+                            📜 Gerar Certificado de Participação
+                        </button>
+                    </div>
+
+                    <button class="btn-secondary" onclick="restartSimulation()">
+                        🔄 Reiniciar Simulação
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção Sobre -->
+        <section id="about" class="section">
+            <div class="container">
+                <div class="about-card">
+                    <h2>Sobre o Simulador</h2>
+                    
+                    <div class="about-content">
+                        <p>
+                            Este simulador foi desenvolvido como ferramenta educacional complementar à obra 
+                            <strong>"Arquiteturas da Dúvida: Como Redesenhar o Sistema Penal Contra os Vieses da Mente Humana"</strong>, 
+                            de Erigutemberg Meneses.
+                        </p>
+
+                        <h3>Fundamentação Teórica</h3>
+                        <p>
+                            O simulador baseia-se em pesquisas empíricas sobre vieses cognitivos no sistema de justiça criminal, 
+                            incluindo estudos de:
+                        </p>
+                        <ul>
+                            <li>Kahneman (2011) - Arquitetura dual da mente (Sistema 1 vs Sistema 2)</li>
+                            <li>Garrett (2022) - Análise de 375 exonerações por DNA nos EUA</li>
+                            <li>Elaad (2022) - Reinterpretação hierárquica de provas exculpatórias (d= 0,48-0,61)</li>
+                            <li>PPSC (2019) - Protocolos canadenses de prevenção de erro judicial</li>
+                        </ul>
+
+                        <h3>Objetivo Educacional</h3>
+                        <p>
+                            Capacitar operadores do direito a identificar precocemente padrões de erro judicial 
+                            e aplicar salvaguardas cognitivas como o CEAP 2.0 (Checklist Estruturado de Análise Probatória) 
+                            e protocolos de blinding pericial.
+                        </p>
+
+                        <h3>Créditos</h3>
+                        <ul>
+                            <li><strong>Autor:</strong> Erigutemberg Meneses</li>
+                            <li><strong>Desenvolvimento:</strong> Baseado em pesquisa acadêmica validada</li>
+                            <li><strong>Licença:</strong> Creative Commons BY-NC-SA 4.0</li>
+                            <li><strong>Finalidade:</strong> Educacional e não-comercial</li>
+                        </ul>
+
+                        <div class="references">
+                            <h3>Referências Bibliográficas</h3>
+                            <ul>
+                                <li>MENESES, Erigutemberg. Arquiteturas da Dúvida. 2026.</li>
+                                <li>KAHNEMAN, Daniel. Thinking, Fast and Slow. 2011.</li>
+                                <li>GARRETT, Brandon L. Convicting the Innocent. 2022.</li>
+                                <li>ELAAD, Eitan. Tunnel Vision and Confirmation Bias. SAGE Open, 2022.</li>
+                                <li>PPSC. Preventing Miscarriages of Justice. Canada, 2019.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>
+                Simulador desenvolvido com base na obra "Arquiteturas da Dúvida" 
+                © 2026 Erigutemberg Meneses
+            </p>
+            <p class="footer-note">
+                Ferramenta educacional para prevenção de erro judicial • 
+                <a href="https://github.com/seu-usuario/voce-e-o-delegado" target="_blank">Código-fonte no GitHub</a>
+            </p>
+        </div>
+    </footer>
+
+    <script src="cases.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
