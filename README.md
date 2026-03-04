@@ -1,96 +1,37 @@
-# Você é o Delegado - Simulador de Investigação Criminal
+# 🔍 Você é o Delegado - Simulador de Investigação Criminal
 
-[![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC_BY--NC--SA_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
-[![Status](https://img.shields.io/badge/status-active-success.svg)]()
+[![Licença: CC BY-NC-SA 4.0](https://img.shields.io/badge/Licença-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
-Simulador interativo de investigação criminal baseado na obra **"Arquiteturas da Dúvida: Como Redesenhar o Sistema Penal Contra os Vieses da Mente Humana"** de Erigutemberg Meneses.
+Simulador interativo para treinamento de delegados, promotores e operadores do direito na identificação de vieses cognitivos e prevenção de erro judicial. Baseado na obra **"Arquiteturas da Dúvida: Como Redesenhar o Sistema Penal Contra os Vieses da Mente Humana"** de Erigutemberg Meneses.
 
-## 🎯 Objetivo
+## 📋 Sobre o Projeto
 
-Capacitar operadores do direito (delegados, promotores, juízes, defensores) e estudantes a identificar precocemente vieses cognitivos que geram erro judicial, desenvolvendo ceticismo saudável e aplicando salvaguardas como o CEAP 2.0 e protocolos de blinding.
+Este simulador apresenta casos criminais reais (adaptados) onde o usuário assume o papel de delegado responsável pela investigação. O objetivo é tomar a decisão correta (indicar, investigar mais ou arquivar) identificando **red flags** de tunnel vision e vieses cognitivos.
 
-## 📚 Fundamentação Teórica
+### 🎯 Objetivos Educacionais
 
-O simulador baseia-se em pesquisas empíricas sobre vieses cognitivos no sistema de justiça:
-
-- **Kahneman (2011)** - Arquitetura dual da mente (Sistema 1 vs Sistema 2)
-- **Garrett (2022)** - Análise de 375 exonerações por DNA nos EUA
-- **Elaad (2022)** - Reinterpretação hierárquica de provas exculpatórias (d= 0,48-0,61)
-- **PPSC (2019)** - Protocolos canadenses de prevenção de erro judicial
+- Identificar precocemente padrões de erro judicial
+- Reconhecer vieses como **confirmation bias**, **hindsight bias** e **viés de familiaridade**
+- Aplicar protocolos como **CEAP 2.0** (Checklist Estruturado de Análise Probatória)
+- Desenvolver ceticismo saudável em relação a evidências frágeis
+- Compreender a importância do **blinding** em reconhecimentos e perícias
 
 ## 🚀 Funcionalidades
 
-### 10 Casos Realistas
-Casos baseados em padrões documentados de erro judicial brasileiro, incluindo:
-- Reconhecimento visual sem blinding
-- Álibi documentado ignorado
-- DNA excludente reinterpretado
-- Operações policiais em massa
-- Confissões sem gravação integral
+- ✅ 10 casos criminais com diferentes níveis de complexidade
+- ✅ Timer de 15 minutos por decisão (simula pressão real)
+- ✅ Checklist de **red flags** para marcar vieses identificados
+- ✅ Feedback imediato com análise detalhada
+- ✅ Sistema de pontuação baseado em acertos e identificação de vieses
+- ✅ Perfil cognitivo personalizado ao final
+- ✅ Geração de certificado de participação
+- ✅ Design responsivo (funciona em mobile, tablet e desktop)
 
-### Feedback Imediato
-- Análise detalhada dos vieses cognitivos presentes
-- Lições aprendidas baseadas em evidências
-- Ferramentas que teriam evitado o erro
-- Comparação com casos reais (Mairlon, Israel Pacheco, etc.)
+## 🛠️ Tecnologias Utilizadas
 
-### Perfil Cognitivo
-Ao final da simulação, você recebe:
-- Pontuação total de desempenho
-- Identificação de padrões de viés pessoal
-- Recomendações personalizadas de treinamento
-- Certificado de participação
+- HTML5 semântico
+- CSS3 (Flexbox, Grid, variáveis CSS)
+- JavaScript puro (Vanilla JS) - sem dependências externas
+- Google Fonts (Inter)
 
-## 📋 Casos Incluídos
-
-1. **Roubo com Reconhecimento Visual** - Tunnel vision + reconhecimento sem blinding
-2. **Tráfico em Operação Policial** - Viés racial implícito + operação em massa
-3. **Homicídio com Álibi Documentado** - Reinterpretação hierárquica (caso Mairlon)
-4. **Estupro com DNA Excludente** - Belief perseverance (caso Israel Pacheco)
-5. **Furto com Testemunhas Não Ouvidas** - Ausência de investigação de álibi
-6. **Latrocínio com DNA Excludente** - Resistance à prova técnica
-7. **Lesão Corporal com Vítima Inconsistente** - Memory conformity
-8. **Corrupção com Documentos Reinterpretados** - Confirmation bias
-9. **Estelionato sem Prejuízo Real** - Hindsight bias
-10. **Feminicídio com Fixação Prematura** - Tunnel vision institucionalizado
-
-## 🛠️ Como Usar
-
-### Para Estudantes e Profissionais
-
-1. **Acesse o simulador**: Abra o arquivo `index.html` em seu navegador
-2. **Leia atentamente**: Cada caso apresenta um relatório policial detalhado
-3. **Identifique red flags**: Marque os vieses cognitivos que identificar
-4. **Tome uma decisão**: Indiciar, requisitar diligências ou arquivar
-5. **Aprenda com o feedback**: Analise os vieses e ferramentas recomendadas
-
-### Para Instituições de Ensino
-
-O simulador pode ser integrado em disciplinas de:
-- Direito Penal e Processo Penal
-- Psicologia Jurídica
-- Investigação Criminal
-- Direitos Humanos
-
-**Sugestão de atividade**:
-- Aplicar o simulador em sala de aula
-- Debater os casos em grupo
-- Comparar decisões dos alunos
-- Discutir as salvaguardas propostas
-
-## 📊 Métricas de Aprendizado
-
-O simulador avalia:
-- **Decisões corretas**: Capacidade de identificar casos que exigem mais investigação
-- **Red flags identificados**: Habilidade em detectar vieses cognitivos
-- **Tempo de análise**: Equilíbrio entre celeridade e prudência
-- **Perfil cognitivo**: Tendências individuais de viés
-
-## 🔧 Requisitos Técnicos
-
-- Navegador moderno (Chrome, Firefox, Safari, Edge)
-- JavaScript habilitado
-- Resolução mínima: 1024x768
-- Conexão com internet (para fontes Google Fonts)
-
-## 📁 Estrutura de Arquivos
+## 📦 Estrutura do Projeto
