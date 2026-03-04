@@ -6,10 +6,542 @@
     <meta name="description" content="Simulador de Investigação Criminal - Treinamento em detecção de vieses cognitivos e prevenção de erro judicial">
     <meta name="author" content="Erigutemberg Meneses">
     <title>Você é o Delegado - Simulador de Investigação Criminal</title>
-    <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ===== RESET E ESTILOS BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #1e293b;
+            background: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: #0f172a;
+            color: white;
+            padding: 1.5rem 0;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        .header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.25rem;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            font-weight: 300;
+        }
+
+        .nav {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: 1px solid #334155;
+            color: #cbd5e1;
+            padding: 0.5rem 1.25rem;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .nav-btn:hover {
+            background: #1e293b;
+            border-color: #475569;
+            color: white;
+        }
+
+        .nav-btn.active {
+            background: #2563eb;
+            border-color: #2563eb;
+            color: white;
+        }
+
+        /* ===== MAIN SECTIONS ===== */
+        .main {
+            flex: 1;
+            padding: 3rem 0;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== CARDS ===== */
+        .intro-card, .feedback-card, .results-card, .about-card {
+            background: white;
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05), 0 10px 10px -5px rgba(0,0,0,0.01);
+        }
+
+        /* ===== INTRO ===== */
+        .intro-card h2 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 1rem;
+        }
+
+        .intro-text {
+            font-size: 1.1rem;
+            color: #475569;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .objectives, .how-it-works {
+            margin-bottom: 2rem;
+        }
+
+        .objectives h3, .how-it-works h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 1rem;
+        }
+
+        .objectives ul {
+            list-style: none;
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .objectives li {
+            background: #f1f5f9;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            font-size: 1rem;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .step {
+            background: #f1f5f9;
+            padding: 1.5rem;
+            border-radius: 16px;
+            text-align: center;
+            position: relative;
+        }
+
+        .step-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: #2563eb;
+            color: white;
+            font-weight: 700;
+            border-radius: 30px;
+            margin: 0 auto 1rem;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(37,99,235,0.3);
+            width: 100%;
+            max-width: 300px;
+            margin: 0 auto;
+            display: block;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(37,99,235,0.4);
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #334155;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e1;
+        }
+
+        .btn-large {
+            max-width: 400px;
+            font-size: 1.2rem;
+            padding: 1.2rem;
+        }
+
+        /* ===== SIMULADOR ===== */
+        .simulator-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .case-number {
+            background: #e2e8f0;
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            font-weight: 600;
+            color: #475569;
+            font-size: 0.9rem;
+        }
+
+        #caseTitle {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-top: 0.5rem;
+        }
+
+        .timer {
+            background: #1e293b;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+        }
+
+        .timer-value {
+            font-size: 1.4rem;
+            margin-left: 0.5rem;
+            color: #fbbf24;
+        }
+
+        .case-content {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 2rem;
+            background: white;
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+        }
+
+        .case-report h3, .decision-panel h3 {
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            color: #0f172a;
+        }
+
+        .report-text {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 16px;
+            border-left: 4px solid #2563eb;
+            margin-bottom: 1.5rem;
+            white-space: pre-line;
+        }
+
+        .evidence-list {
+            background: #f1f5f9;
+            padding: 1.5rem;
+            border-radius: 16px;
+        }
+
+        .evidence-list h4 {
+            margin-bottom: 1rem;
+            color: #334155;
+        }
+
+        .evidence-item {
+            padding: 0.75rem;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            border-left: 3px solid #94a3b8;
+        }
+
+        .decision-options {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .decision-btn {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: #f1f5f9;
+            border: 2px solid transparent;
+            border-radius: 16px;
+            padding: 1rem;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        .decision-btn:hover {
+            background: #e2e8f0;
+            border-color: #2563eb;
+        }
+
+        .btn-icon {
+            font-size: 2rem;
+        }
+
+        .btn-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .btn-text small {
+            color: #64748b;
+            font-size: 0.85rem;
+        }
+
+        .red-flags-check {
+            background: #fef9c3;
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 1px solid #facc15;
+            margin-top: 1.5rem;
+        }
+
+        .checkbox-group {
+            display: grid;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            margin-top: 0.2rem;
+            width: 18px;
+            height: 18px;
+            accent-color: #2563eb;
+        }
+
+        /* ===== FEEDBACK ===== */
+        .feedback-card {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .feedback-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 3px solid #2563eb;
+        }
+
+        .feedback-content > div {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .feedback-content h3 {
+            color: #0f172a;
+            margin-bottom: 1rem;
+        }
+
+        .next-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            border-bottom: none !important;
+            padding-bottom: 0 !important;
+        }
+
+        /* ===== RESULTADOS ===== */
+        .results-card {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .score-overview {
+            display: flex;
+            align-items: center;
+            gap: 3rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .score-circle {
+            width: 180px;
+            height: 180px;
+            background: linear-gradient(135deg, #2563eb, #1e40af);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 10px 15px -3px rgba(37,99,235,0.3);
+        }
+
+        .score-value {
+            font-size: 3.5rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .score-label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            flex: 1;
+        }
+
+        .stat-item {
+            text-align: center;
+            background: #f1f5f9;
+            padding: 1.5rem 1rem;
+            border-radius: 16px;
+        }
+
+        .stat-value {
+            display: block;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .cognitive-profile, .recommendations, .certificate-section {
+            margin: 2rem 0;
+        }
+
+        .certificate-section {
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        /* ===== SOBRE ===== */
+        .about-card {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .about-content h3 {
+            margin: 1.5rem 0 0.5rem;
+            color: #0f172a;
+        }
+
+        .references {
+            background: #f1f5f9;
+            padding: 1.5rem;
+            border-radius: 16px;
+            margin-top: 2rem;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: #0f172a;
+            color: #94a3b8;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: auto;
+        }
+
+        .footer a {
+            color: #94a3b8;
+            text-decoration: none;
+            border-bottom: 1px dotted #475569;
+        }
+
+        .footer a:hover {
+            color: white;
+        }
+
+        .footer-note {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        /* ===== UTILITÁRIOS ===== */
+        .hidden {
+            display: none !important;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
     <header class="header">
@@ -71,7 +603,7 @@
                         </div>
                     </div>
 
-                    <button class="btn-primary btn-large" onclick="startSimulation()">
+                    <button class="btn-primary btn-large" id="startSimBtn">
                         Iniciar Simulação →
                     </button>
                 </div>
@@ -83,7 +615,7 @@
             <div class="container">
                 <div class="simulator-header">
                     <div class="case-info">
-                        <span class="case-number">Caso <span id="currentCase">1</span> de <span id="totalCases">10</span></span>
+                        <span class="case-number">Caso <span id="currentCase">1</span> de <span id="totalCases">5</span></span>
                         <h2 id="caseTitle">Carregando caso...</h2>
                     </div>
                     <div class="timer">
@@ -99,7 +631,7 @@
                             <!-- Conteúdo do caso será inserido via JavaScript -->
                         </div>
                         
-                        <div class="evidence-list" id="evidenceList">
+                        <div id="evidenceList" class="evidence-list">
                             <!-- Lista de evidências será inserida via JavaScript -->
                         </div>
                     </div>
@@ -111,7 +643,7 @@
                         </p>
                         
                         <div class="decision-options">
-                            <button class="decision-btn" data-decision="indict" onclick="makeDecision('indict')">
+                            <button class="decision-btn" data-decision="indict" id="indictBtn">
                                 <span class="btn-icon">📋</span>
                                 <span class="btn-text">
                                     <strong>Indiciar o Suspeito</strong>
@@ -119,7 +651,7 @@
                                 </span>
                             </button>
                             
-                            <button class="decision-btn" data-decision="investigate" onclick="makeDecision('investigate')">
+                            <button class="decision-btn" data-decision="investigate" id="investigateBtn">
                                 <span class="btn-icon">🔍</span>
                                 <span class="btn-text">
                                     <strong>Requisitar Diligências</strong>
@@ -127,7 +659,7 @@
                                 </span>
                             </button>
                             
-                            <button class="decision-btn" data-decision="archive" onclick="makeDecision('archive')">
+                            <button class="decision-btn" data-decision="archive" id="archiveBtn">
                                 <span class="btn-icon">📁</span>
                                 <span class="btn-text">
                                     <strong>Arquivar o Caso</strong>
@@ -205,10 +737,10 @@
                         </div>
 
                         <div class="next-actions">
-                            <button class="btn-primary" onclick="nextCase()">
+                            <button class="btn-primary" id="nextCaseBtn">
                                 Próximo Caso →
                             </button>
-                            <button class="btn-secondary" onclick="showResults()">
+                            <button class="btn-secondary" id="showResultsBtn">
                                 Ver Resultados Gerais
                             </button>
                         </div>
@@ -260,12 +792,12 @@
                     </div>
 
                     <div class="certificate-section">
-                        <button class="btn-primary" onclick="generateCertificate()">
+                        <button class="btn-primary" id="certificateBtn">
                             📜 Gerar Certificado de Participação
                         </button>
                     </div>
 
-                    <button class="btn-secondary" onclick="restartSimulation()">
+                    <button class="btn-secondary" id="restartBtn">
                         🔄 Reiniciar Simulação
                     </button>
                 </div>
@@ -341,7 +873,210 @@
         </div>
     </footer>
 
-    <script src="cases.js"></script>
-    <script src="script.js"></script>
+    <script>
+        // ========== CASOS SIMULADOS ==========
+        const casos = [
+            {
+                id: 1,
+                titulo: "Furto em loja de departamentos",
+                descricao: "No dia 10/03, às 15h, Pedro foi detido por seguranças ao sair de uma loja. O alarme disparou e ele portava uma jaqueta sem etiqueta. A jaqueta é similar a modelos vendidos na loja. Pedro afirma que comprou a jaqueta em outro local e apresentou um recibo de compra de 15/02 de uma loja concorrente. O segurança afirma que o reconhece de ocorrências anteriores.",
+                evidencias: [
+                    "Jaqueta apreendida (sem etiqueta da loja)",
+                    "Recibo de compra de outra loja (15/02, no valor de R$ 189,90)",
+                    "Depoimento do segurança: 'Já vi esse rapaz fazendo isso antes'",
+                    "Imagens internas mostram Pedro experimentando jaquetas no setor masculino por 10 minutos"
+                ],
+                decisaoCorreta: "investigate", // precisa checar recibo vs produto
+                feedback: "Há um recibo recente de loja concorrente. É necessário verificar se a jaqueta é do mesmo modelo/marca da comprovada. O reconhecimento pessoal do segurança é frágil (vies de familiaridade).",
+                vieses: ["Familiaridade", "Viés de confirmação (segurança já esperava um furto)"],
+                ferramentas: ["Análise documental da jaqueta vs recibo", "Blinding para reconhecimento"],
+                redFlags: ["reconhecimento_sem_blinding", "comportamento_suspeito"]
+            },
+            {
+                id: 2,
+                titulo: "Homicídio no bar",
+                descricao: "João foi preso suspeito de matar Carlos em uma briga de bar. Duas testemunhas disseram que 'foi o homem de camisa azul' e João usava camisa azul. João tem um álibi: estava em casa com a esposa, que confirma. A faca encontrada não tem impressões digitais. João tem passagens por briga.",
+                evidencias: [
+                    "Faca apreendida (sem digitais)",
+                    "Testemunha 1: 'vi um homem de camisa azul dando a facada'",
+                    "Testemunha 2: 'o agressor era moreno, camisa azul'",
+                    "Esposa de João afirma que ele chegou em casa 30min antes do horário da briga",
+                    "João tem antecedente por lesão corporal (2019)"
+                ],
+                decisaoCorreta: "archive", // álibi forte, testemunha genérica, faca limpa
+                feedback: "O álibi é coeso e as testemunhas são vagas (descrição genérica). A faca sem digitais e os antecedentes são insuficientes. Perigo de tunnel vision.",
+                vieses: ["Viés de confirmação (antecedentes)", "Hindsight bias"],
+                ferramentas: ["CEAP 2.0 - checklist probatório", "Análise de consistência do álibi"],
+                redFlags: ["fixacao_24h", "alibi_ignorado"]
+            }
+        ];
+
+        // ========== ESTADO GLOBAL ==========
+        let currentCaseIndex = 0;
+        let score = { acertos: 0, totalRedFlags: 0, tempoMedio: 0, tempos: [] };
+        let timerInterval;
+        let secondsLeft = 900; // 15 min
+        let decisionMade = false;
+
+        // ========== FUNÇÕES DE NAVEGAÇÃO ==========
+        const sections = document.querySelectorAll('.section');
+        const navBtns = document.querySelectorAll('.nav-btn');
+
+        navBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetId = btn.dataset.section;
+                sections.forEach(s => s.classList.remove('active'));
+                navBtns.forEach(b => b.classList.remove('active'));
+                document.getElementById(targetId).classList.add('active');
+                btn.classList.add('active');
+
+                if (targetId === 'simulator') {
+                    resetTimer();
+                    loadCase(currentCaseIndex);
+                }
+                if (targetId === 'results') {
+                    updateResultsPanel();
+                }
+            });
+        });
+
+        document.getElementById('startSimBtn').addEventListener('click', () => {
+            document.querySelector('[data-section="simulator"]').click();
+        });
+
+        // ========== CARREGAR CASO ==========
+        function loadCase(index) {
+            decisionMade = false;
+            const caso = casos[index];
+            if (!caso) return;
+
+            document.getElementById('currentCase').textContent = index + 1;
+            document.getElementById('totalCases').textContent = casos.length;
+            document.getElementById('caseTitle').textContent = caso.titulo;
+            document.getElementById('caseText').textContent = caso.descricao;
+
+            // evidências
+            const evidenceDiv = document.getElementById('evidenceList');
+            evidenceDiv.innerHTML = '<h4>📦 Evidências:</h4>';
+            caso.evidencias.forEach(ev => {
+                evidenceDiv.innerHTML += `<div class="evidence-item">${ev}</div>`;
+            });
+
+            // reset checkboxes
+            document.querySelectorAll('#redFlagsChecklist input[type="checkbox"]').forEach(cb => cb.checked = false);
+            
+            resetTimer();
+        }
+
+        // ========== TIMER ==========
+        function resetTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            secondsLeft = 900;
+            updateTimerDisplay();
+            timerInterval = setInterval(() => {
+                if (!decisionMade) {
+                    secondsLeft--;
+                    updateTimerDisplay();
+                    if (secondsLeft <= 0) {
+                        clearInterval(timerInterval);
+                        alert('Tempo esgotado! Vamos para o feedback.');
+                        makeDecision('investigate'); // default timeout
+                    }
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(secondsLeft / 60);
+            const secs = secondsLeft % 60;
+            document.getElementById('timer').textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // ========== DECISÃO DO USUÁRIO ==========
+        window.makeDecision = function(decision) {
+            if (decisionMade) return;
+            decisionMade = true;
+            clearInterval(timerInterval);
+            
+            const caso = casos[currentCaseIndex];
+            const checkboxes = document.querySelectorAll('#redFlagsChecklist input:checked');
+            const selectedFlags = Array.from(checkboxes).map(cb => cb.value);
+            const correctFlagsCount = selectedFlags.filter(f => caso.redFlags.includes(f)).length;
+            score.totalRedFlags += correctFlagsCount;
+
+            // tempo
+            const timeSpent = 15 - Math.floor(secondsLeft / 60);
+            score.tempos.push(timeSpent);
+            
+            // verificar acerto
+            const isCorrect = (decision === caso.decisaoCorreta);
+            if (isCorrect) score.acertos++;
+
+            // gerar feedback
+            document.getElementById('decisionResult').innerHTML = `<strong>Sua decisão:</strong> ${decision} <br> <strong>${isCorrect ? '✅ Correta' : '❌ Incorreta'}</strong>`;
+            document.getElementById('biasAnalysis').innerHTML = `<p>${caso.vieses.join(', ')}</p>`;
+            document.getElementById('lessonsList').innerHTML = caso.feedback.split('.').map(p => `<li>${p}</li>`).join('');
+            document.getElementById('toolsList').innerHTML = caso.ferramentas.map(f => `<li>${f}</li>`).join('');
+
+            // mostrar feedback
+            document.getElementById('simulator').classList.remove('active');
+            document.getElementById('feedback').classList.add('active');
+            // atualizar nav
+            navBtns.forEach(b => b.classList.remove('active'));
+            document.querySelector('[data-section="feedback"]')?.classList.add('active'); // não existe, mas evitamos erro
+        };
+
+        // Botões de decisão
+        document.getElementById('indictBtn').addEventListener('click', () => makeDecision('indict'));
+        document.getElementById('investigateBtn').addEventListener('click', () => makeDecision('investigate'));
+        document.getElementById('archiveBtn').addEventListener('click', () => makeDecision('archive'));
+
+        // Próximo caso
+        document.getElementById('nextCaseBtn').addEventListener('click', () => {
+            currentCaseIndex++;
+            if (currentCaseIndex < casos.length) {
+                loadCase(currentCaseIndex);
+                document.getElementById('feedback').classList.remove('active');
+                document.getElementById('simulator').classList.add('active');
+                navBtns.forEach(b => b.classList.remove('active'));
+                document.querySelector('[data-section="simulator"]').classList.add('active');
+            } else {
+                alert('Parabéns! Você completou todos os casos.');
+                document.getElementById('feedback').classList.remove('active');
+                document.getElementById('results').classList.add('active');
+                navBtns.forEach(b => b.classList.remove('active'));
+                document.querySelector('[data-section="results"]').classList.add('active');
+                updateResultsPanel();
+            }
+        });
+
+        document.getElementById('showResultsBtn').addEventListener('click', () => {
+            document.querySelector('[data-section="results"]').click();
+        });
+
+        function updateResultsPanel() {
+            document.getElementById('totalScore').textContent = (score.acertos * 100) + (score.totalRedFlags * 10);
+            document.getElementById('correctDecisions').textContent = score.acertos + '/' + casos.length;
+            document.getElementById('redFlagsIdentified').textContent = score.totalRedFlags;
+            const media = score.tempos.length ? (score.tempos.reduce((a,b)=>a+b,0)/score.tempos.length).toFixed(1) : 0;
+            document.getElementById('averageTime').textContent = media;
+            document.getElementById('cognitiveProfile').innerHTML = `<p>Você tende a ${score.acertos > casos.length/2 ? 'seguir evidências fortes' : 'ser cauteloso'}. Continue praticando!</p>`;
+            document.getElementById('recommendationsList').innerHTML = '<li>Revisar checklist CEAP 2.0</li><li>Estudar casos de erro judicial (Innocence Project)</li>';
+        }
+
+        document.getElementById('certificateBtn').addEventListener('click', () => {
+            alert('📄 Certificado gerado (simulação). Parabéns pela participação!');
+        });
+
+        document.getElementById('restartBtn').addEventListener('click', () => {
+            currentCaseIndex = 0;
+            score = { acertos: 0, totalRedFlags: 0, tempoMedio: 0, tempos: [] };
+            loadCase(0);
+            document.querySelector('[data-section="intro"]').click();
+        });
+
+        // ========== INICIALIZAÇÃO ==========
+        loadCase(0);
+    </script>
 </body>
 </html>
