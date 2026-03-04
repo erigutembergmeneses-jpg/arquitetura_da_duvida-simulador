@@ -86,4 +86,499 @@ const casos = [
             correto: "Bem avaliado. Há indícios, mas a entrevista sugestiva contamina a prova. O laudo é negativo. Investigar com equipe especializada é essencial.",
             incorreto: {
                 indict: "Indiciar com base em entrevista sugestiva e laudo negativo é arriscado. Pode levar a uma falsa acusação.",
-                archive: "Arquivar sem aprofundar pode deixar uma criança em risco. A palavra da vítima, mesmo
+                archive: "Arquivar sem aprofundar pode deixar uma criança em risco. A palavra da vítima, mesmo frágil, exige apuração cuidadosa."
+            }
+        },
+        vieses: ["Viés de proteção à vítima", "Viés de confirmação (entrevista sugestiva)"],
+        ferramentas: ["Protocolo de entrevista cognitiva", "Depoimento especial não-sugestivo", "CEAP 2.0 - análise de prova pericial"],
+        redFlags: ["confissao_sem_gravacao", "fixacao_24h"]
+    },
+    {
+        id: 5,
+        titulo: "Lavagem de dinheiro",
+        descricao: "Empresário José (45 anos) teve contas bloqueadas por movimentações atípicas: R$ 500 mil em depósitos fracionados. Ele alega que são pagamentos de clientes de sua loja de materiais de construção. Contabilidade mostra faturamento compatível. Não há outros indícios.",
+        evidencias: [
+            "Relatório do COAF: 50 depósitos de R$ 10 mil em 3 meses",
+            "Declaração de IRPF compatível com o faturamento declarado",
+            "Notas fiscais emitidas no período",
+            "José não tem antecedentes",
+            "Depoimento de contador: 'a movimentação é normal para o ramo'"
+        ],
+        decisaoCorreta: "archive",
+        feedback: {
+            correto: "Perfeito. A movimentação tem lastro fiscal. Não há indício de origem ilícita. Arquivar é a medida correta.",
+            incorreto: {
+                indict: "Indiciar sem prova da origem ilícita é ilegal. O fracionamento não é crime se justificado.",
+                investigate: "Investigar mais pode ser aceitável, mas já há elementos suficientes para arquivar. O COAF não é prova de crime."
+            }
+        },
+        vieses: ["Viés de ancoragem (valor alto)", "Viés de confirmação (suspeita prévia)"],
+        ferramentas: ["Análise documental completa", "CEAP 2.0 - proporcionalidade"],
+        redFlags: ["fixacao_24h"]
+    }
+];
+
+// ========== ESTADO GLOBAL ==========
+let currentCaseIndex = 0;
+let score = {
+    acertos: 0,
+    totalRedFlags: 0,
+    tempos: [],
+    decisoes: [],
+    redFlagsSelecionadas: []
+};
+let timerInterval = null;
+let secondsLeft = 900; // 15 minutos
+let decisionMade = false;
+let selectedDecision = null;
+let casosFinalizados = false;
+
+// ========== INICIALIZAÇÃO ==========
+document.addEventListener('DOMContentLoaded', () => {
+    inicializarNavegacao();
+    inicializarBotoes();
+    atualizarContadorCasos();
+    carregarCaso(0);
+    iniciarTimer();
+});
+
+// ========== NAVEGAÇÃO ==========
+function inicializarNavegacao() {
+    const navBtns = document.querySelectorAll('.nav-btn');
+    
+    navBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const targetId = btn.dataset.section;
+            
+            // Remover active de todos
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            navBtns.forEach(b => b.classList.remove('active'));
+            
+            // Ativar target
+            document.getElementById(targetId).classList.add('active');
+            btn.classList.add('active');
+            
+            // Ações específicas por seção
+            if (targetId === 'simulator') {
+                resetarTimer();
+                carregarCaso(currentCaseIndex);
+            }
+            if (targetId === 'results') {
+                atualizarPainelResultados();
+            }
+        });
+    });
+}
+
+function inicializarBotoes() {
+    // Botão iniciar simulação
+    document.getElementById('startSimBtn').addEventListener('click', () => {
+        document.querySelector('[data-section="simulator"]').click();
+    });
+    
+    // Botões de decisão
+    document.getElementById('indictBtn').addEventListener('click', () => selecionarDecisao('indict'));
+    document.getElementById('investigateBtn').addEventListener('click', () => selecionarDecisao('investigate'));
+    document.getElementById('archiveBtn').addEventListener('click', () => selecionarDecisao('archive'));
+    
+    // Botões de navegação pós-feedback
+    document.getElementById('nextCaseBtn').addEventListener('click', proximoCaso);
+    document.getElementById('showResultsBtn').addEventListener('click', () => {
+        document.querySelector('[data-section="results"]').click();
+    });
+    
+    // Botões de resultados
+    document.getElementById('certificateBtn').addEventListener('click', gerarCertificado);
+    document.getElementById('restartBtn').addEventListener('click', reiniciarSimulacao);
+    
+    // Checkboxes de red flags
+    document.querySelectorAll('#redFlagsChecklist input[type="checkbox"]').forEach(cb => {
+        cb.addEventListener('change', atualizarRedFlags);
+    });
+}
+
+// ========== CARREGAMENTO DE CASOS ==========
+function carregarCaso(index) {
+    if (index >= casos.length) {
+        finalizarSimulacao();
+        return;
+    }
+    
+    const caso = casos[index];
+    if (!caso) return;
+    
+    // Atualizar interface
+    document.getElementById('currentCase').textContent = index + 1;
+    document.getElementById('totalCases').textContent = casos.length;
+    document.getElementById('caseTitle').textContent = caso.titulo;
+    document.getElementById('caseText').textContent = caso.descricao;
+    
+    // Carregar evidências
+    const evidenceDiv = document.getElementById('evidenceList');
+    evidenceDiv.innerHTML = '<h4>📦 Evidências:</h4>';
+    caso.evidencias.forEach(ev => {
+        evidenceDiv.innerHTML += `<div class="evidence-item">${ev}</div>`;
+    });
+    
+    // Resetar checkboxes
+    document.querySelectorAll('#redFlagsChecklist input[type="checkbox"]').forEach(cb => cb.checked = false);
+    
+    // Resetar seleção de decisão
+    selectedDecision = null;
+    decisionMade = false;
+    document.querySelectorAll('.decision-btn').forEach(btn => {
+        btn.classList.remove('selected');
+    });
+    
+    // Atualizar timer
+    resetarTimer();
+}
+
+function atualizarContadorCasos() {
+    document.getElementById('totalCases').textContent = casos.length;
+}
+
+// ========== TIMER ==========
+function iniciarTimer() {
+    if (timerInterval) clearInterval(timerInterval);
+    
+    timerInterval = setInterval(() => {
+        if (!decisionMade && document.getElementById('simulator').classList.contains('active')) {
+            secondsLeft--;
+            atualizarTimerDisplay();
+            
+            // Alertas visuais
+            const timerEl = document.querySelector('.timer');
+            if (secondsLeft <= 60) {
+                timerEl.classList.add('danger');
+            } else if (secondsLeft <= 300) {
+                timerEl.classList.add('warning');
+            }
+            
+            if (secondsLeft <= 0) {
+                clearInterval(timerInterval);
+                alert('⏰ Tempo esgotado! Vamos analisar sua decisão padrão.');
+                fazerDecisao('investigate'); // decisão padrão: investigar mais
+            }
+        }
+    }, 1000);
+}
+
+function resetarTimer() {
+    if (timerInterval) clearInterval(timerInterval);
+    secondsLeft = 900;
+    atualizarTimerDisplay();
+    
+    // Resetar classes de alerta
+    const timerEl = document.querySelector('.timer');
+    timerEl.classList.remove('warning', 'danger');
+    
+    iniciarTimer();
+}
+
+function atualizarTimerDisplay() {
+    const mins = Math.floor(secondsLeft / 60);
+    const secs = secondsLeft % 60;
+    document.getElementById('timer').textContent = 
+        `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+// ========== DECISÃO DO USUÁRIO ==========
+function selecionarDecisao(decision) {
+    if (decisionMade) return;
+    
+    // Destacar botão selecionado
+    document.querySelectorAll('.decision-btn').forEach(btn => {
+        btn.classList.remove('selected');
+    });
+    document.getElementById(`${decision}Btn`).classList.add('selected');
+    
+    selectedDecision = decision;
+    
+    // Pequeno delay para feedback visual
+    setTimeout(() => {
+        fazerDecisao(decision);
+    }, 300);
+}
+
+function fazerDecisao(decision) {
+    if (decisionMade) return;
+    
+    decisionMade = true;
+    clearInterval(timerInterval);
+    
+    const caso = casos[currentCaseIndex];
+    const tempoGasto = 15 - Math.floor(secondsLeft / 60);
+    
+    // Registrar red flags selecionadas
+    const checkboxes = document.querySelectorAll('#redFlagsChecklist input:checked');
+    const selectedFlags = Array.from(checkboxes).map(cb => cb.value);
+    const correctFlags = selectedFlags.filter(f => caso.redFlags.includes(f));
+    
+    // Atualizar score
+    score.totalRedFlags += correctFlags.length;
+    score.tempos.push(tempoGasto);
+    score.redFlagsSelecionadas.push({
+        caso: caso.id,
+        flags: selectedFlags
+    });
+    
+    // Verificar acerto
+    const isCorrect = (decision === caso.decisaoCorreta);
+    if (isCorrect) {
+        score.acertos++;
+    }
+    
+    score.decisoes.push({
+        caso: caso.id,
+        decisao: decision,
+        correta: isCorrect,
+        tempo: tempoGasto
+    });
+    
+    // Gerar feedback
+    gerarFeedback(caso, decision, isCorrect);
+    
+    // Mostrar seção de feedback
+    document.getElementById('simulator').classList.remove('active');
+    document.getElementById('feedback').classList.add('active');
+    
+    // Atualizar nav (feedback não tem botão próprio, então mantemos simulador ativo visualmente)
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelector('[data-section="simulator"]').classList.add('active');
+}
+
+function gerarFeedback(caso, decision, isCorrect) {
+    // Título
+    document.getElementById('feedbackTitle').textContent = isCorrect ? '✅ Decisão Correta!' : '❌ Decisão Incorreta';
+    
+    // Resultado da decisão
+    let resultadoHTML = '';
+    if (isCorrect) {
+        resultadoHTML = `<div class="decision-result correct">
+            <strong>Sua decisão: ${traduzirDecisao(decision)}</strong><br>
+            ${caso.feedback.correto}
+        </div>`;
+    } else {
+        resultadoHTML = `<div class="decision-result incorrect">
+            <strong>Sua decisão: ${traduzirDecisao(decision)}</strong><br>
+            ${caso.feedback.incorreto[decision] || 'Decisão inadequada para este caso.'}
+        </div>`;
+    }
+    document.getElementById('decisionResult').innerHTML = resultadoHTML;
+    
+    // Análise de vieses
+    document.getElementById('biasAnalysis').innerHTML = `
+        <p><strong>Vieses identificados neste caso:</strong></p>
+        <ul>
+            ${caso.vieses.map(v => `<li>${v}</li>`).join('')}
+        </ul>
+    `;
+    
+    // Lições aprendidas
+    document.getElementById('lessonsList').innerHTML = `
+        <li>${caso.feedback.correto}</li>
+        <li>Os vieses mais comuns neste tipo de caso: ${caso.vieses.join(', ')}.</li>
+        <li>Sempre questione: "Que evidências eu estou ignorando?"</li>
+    `;
+    
+    // Ferramentas recomendadas
+    document.getElementById('toolsList').innerHTML = caso.ferramentas.map(f => `<li>${f}</li>`).join('');
+}
+
+function traduzirDecisao(decision) {
+    const mapa = {
+        'indict': 'Indiciar o suspeito',
+        'investigate': 'Requisitar diligências',
+        'archive': 'Arquivar o caso'
+    };
+    return mapa[decision] || decision;
+}
+
+// ========== RED FLAGS ==========
+function atualizarRedFlags() {
+    // Função para tracking em tempo real se necessário
+    const selected = Array.from(document.querySelectorAll('#redFlagsChecklist input:checked'))
+        .map(cb => cb.value);
+    console.log('Red flags selecionadas:', selected);
+}
+
+// ========== PRÓXIMO CASO ==========
+function proximoCaso() {
+    currentCaseIndex++;
+    
+    if (currentCaseIndex < casos.length) {
+        carregarCaso(currentCaseIndex);
+        document.getElementById('feedback').classList.remove('active');
+        document.getElementById('simulator').classList.add('active');
+    } else {
+        finalizarSimulacao();
+    }
+}
+
+function finalizarSimulacao() {
+    casosFinalizados = true;
+    alert('🎉 Parabéns! Você completou todos os casos.');
+    
+    document.getElementById('feedback').classList.remove('active');
+    document.getElementById('results').classList.add('active');
+    
+    // Atualizar nav
+    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelector('[data-section="results"]').classList.add('active');
+    
+    atualizarPainelResultados();
+}
+
+// ========== RESULTADOS ==========
+function atualizarPainelResultados() {
+    // Pontuação total (100 pontos por acerto + 10 por red flag)
+    const pontuacaoTotal = (score.acertos * 100) + (score.totalRedFlags * 10);
+    document.getElementById('totalScore').textContent = pontuacaoTotal;
+    
+    // Decisões corretas
+    document.getElementById('correctDecisions').textContent = `${score.acertos}/${casos.length}`;
+    
+    // Red flags identificadas
+    document.getElementById('redFlagsIdentified').textContent = score.totalRedFlags;
+    
+    // Tempo médio
+    const tempoMedio = score.tempos.length > 0 
+        ? (score.tempos.reduce((a, b) => a + b, 0) / score.tempos.length).toFixed(1)
+        : 0;
+    document.getElementById('averageTime').textContent = tempoMedio;
+    
+    // Perfil cognitivo
+    const perfil = gerarPerfilCognitivo();
+    document.getElementById('cognitiveProfile').innerHTML = perfil;
+    
+    // Recomendações
+    const recomendacoes = gerarRecomendacoes();
+    document.getElementById('recommendationsList').innerHTML = recomendacoes;
+}
+
+function gerarPerfilCognitivo() {
+    const percentualAcertos = (score.acertos / casos.length) * 100;
+    
+    if (percentualAcertos >= 80) {
+        return `
+            <p>🔬 <strong>Investigador Avançado</strong></p>
+            <p>Você demonstra excelente capacidade de identificar vieses e tomar decisões fundamentadas. Seu perfil é analítico e cauteloso.</p>
+            <div class="progress-bar"><div class="progress-fill" style="width: ${percentualAcertos}%"></div></div>
+        `;
+    } else if (percentualAcertos >= 60) {
+        return `
+            <p>📊 <strong>Investigador em Desenvolvimento</strong></p>
+            <p>Você já identifica alguns vieses, mas ainda pode melhorar. Foque em questionar evidências frágeis e buscar provas corroborativas.</p>
+            <div class="progress-bar"><div class="progress-fill" style="width: ${percentualAcertos}%"></div></div>
+        `;
+    } else {
+        return `
+            <p>📚 <strong>Investigador Iniciante</strong></p>
+            <p>Você está no começo da jornada. Continue praticando e estudando os protocolos CEAP 2.0. A prevenção de erros judiciais é um aprendizado contínuo.</p>
+            <div class="progress-bar"><div class="progress-fill" style="width: ${percentualAcertos}%"></div></div>
+        `;
+    }
+}
+
+function gerarRecomendacoes() {
+    const recomendacoes = [];
+    
+    if (score.totalRedFlags < 3) {
+        recomendacoes.push('📋 <strong>Checklist CEAP 2.0:</strong> Pratique a identificação de red flags em cada caso.');
+    }
+    if (score.acertos < 3) {
+        recomendacoes.push('🔍 <strong>Estudo de casos:</strong> Analise casos reais de erro judicial (Innocence Project).');
+    }
+    
+    recomendacoes.push('📖 <strong>Leitura recomendada:</strong> "Arquiteturas da Dúvida" - Erigutemberg Meneses');
+    recomendacoes.push('🎯 <strong>Próximo passo:</strong> Refazer a simulação aplicando os protocolos de blinding.');
+    
+    return recomendacoes.map(r => `<li>${r}</li>`).join('');
+}
+
+// ========== CERTIFICADO ==========
+function gerarCertificado() {
+    const nome = prompt('Digite seu nome para o certificado:');
+    if (!nome) return;
+    
+    const data = new Date().toLocaleDateString('pt-BR');
+    const pontuacao = (score.acertos * 100) + (score.totalRedFlags * 10);
+    
+    const certificado = `
+        ========================================
+                CERTIFICADO DE PARTICIPAÇÃO
+        ========================================
+        
+        Certificamos que ${nome} participou do simulador
+        "Você é o Delegado" e completou ${casos.length} casos,
+        obtendo pontuação total de ${pontuacao} pontos.
+        
+        Data: ${data}
+        
+        "Arquiteturas da Dúvida" - Erigutemberg Meneses
+        ========================================
+    `;
+    
+    alert('📄 Certificado gerado! (Simulação acadêmica)');
+    console.log(certificado);
+    
+    // Criar download
+    const blob = new Blob([certificado], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `certificado_${nome.replace(/\s+/g, '_')}.txt`;
+    a.click();
+}
+
+// ========== REINICIAR ==========
+function reiniciarSimulacao() {
+    if (confirm('Tem certeza? Todo seu progresso será perdido.')) {
+        currentCaseIndex = 0;
+        score = {
+            acertos: 0,
+            totalRedFlags: 0,
+            tempos: [],
+            decisoes: [],
+            redFlagsSelecionadas: []
+        };
+        
+        carregarCaso(0);
+        document.querySelector('[data-section="intro"]').click();
+    }
+}
+
+// ========== UTILITÁRIOS ==========
+function formatarTempo(segundos) {
+    const mins = Math.floor(segundos / 60);
+    const secs = segundos % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+// ========== EXPOSIÇÃO GLOBAL (para chamadas HTML) ==========
+window.makeDecision = function(decision) {
+    selecionarDecisao(decision);
+};
+
+window.startSimulation = function() {
+    document.querySelector('[data-section="simulator"]').click();
+};
+
+window.nextCase = function() {
+    proximoCaso();
+};
+
+window.showResults = function() {
+    document.querySelector('[data-section="results"]').click();
+};
+
+window.generateCertificate = function() {
+    gerarCertificado();
+};
+
+window.restartSimulation = function() {
+    reiniciarSimulacao();
+};
